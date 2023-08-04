@@ -1,0 +1,25 @@
+{
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "diffEditor.ignoreTrimWhitespace": false,
+  "editor.formatOnSave": true,
+  "eslint.codeActionsOnSave.rules": null,
+  "GitLive.Special branches": "main|master|trunk|dev|develop|qa|test|release[-/].*",
+  "GitLive.Issue tracker integration": "Disabled",
+  "git.suggestSmartCommit": false,
+  "svelte.enable-ts-plugin": true,
+  "workbench.iconTheme": "material-icon-theme",
+
+  "errorLens.excludeBySource": ["ts(1109)"],
+  "errorLens.lintFilePaths": {
+    "eslint": ["**/*.eslintrc.{js,cjs,yaml,yml,json}", "**/*package.json"],
+    "Stylelint": [
+      "**/*.stylelintrc",
+      "**/*.stylelintrc.{cjs,js,json,yaml,yml}",
+      "**/*stylelint.config.{cjs,js}",
+      "**/*package.json"
+    ]
+  },
+  "typescript.tsdk": "node_modules/typescript/lib",
+
+  "workbench.colorTheme": "Default Dark Modern"
+}
