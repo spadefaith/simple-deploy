@@ -20,7 +20,7 @@ function deploy({
       echo "done mkdir"
 
       #clone the repository
-      echo "clone"
+      echo "git clone {repo_url} ."
       git clone {repo_url} .
       echo "done cloning"
 
