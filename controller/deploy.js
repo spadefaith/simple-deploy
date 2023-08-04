@@ -6,6 +6,12 @@ function deploy({
     repo_url,
     repo_name
 }){
+
+  console.log(10,{
+    repo_url,
+    repo_name
+});
+
     const str = format(`
       #mkdir
       mkdir ~/simple-deploy-out
