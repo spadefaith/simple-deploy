@@ -31,7 +31,7 @@ function deploy({
       echo "done output clear"
       sudo mkdir /var/www/{repo_name}
       echo "done output mkdir"
-      sudo cp -r dist/* /var/www/{repo_name}
+      sudo cp -r ~/simple-deploy-out/{repo_name}/dist/* /var/www/{repo_name}
       echo "done output copy"
       sudo chown -R www-data:www-data /var/www/{repo_name}
       echo "done output change user access"
