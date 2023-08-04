@@ -8,9 +8,9 @@ function deploy({
 }){
     const str = format(`
       #mkdir
-      mkdir ~/simple-deploy
-      mkdir ~/simple-deploy/{repo_name}
-      cd ~/simple-deploy/{repo_name}
+      mkdir ~/simple-deploy-out
+      mkdir ~/simple-deploy-out/{repo_name}
+      cd ~/simple-deploy-out/{repo_name}
       echo "done mkdir"
 
       #clone the repository
@@ -36,7 +36,7 @@ function deploy({
       sudo chown -R www-data:www-data /var/www/{repo_name}
       echo "done output change user access"
       #remove the url
-      sudo rm -rf cd ~/simple-deploy/{repo_name}
+      sudo rm -rf cd ~/simple-deploy-out/{repo_name}
       echo "done src remove"
   `, {
       repo_url,repo_name
