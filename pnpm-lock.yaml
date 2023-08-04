@@ -14,6 +14,9 @@ dependencies:
   express:
     specifier: ^4.18.2
     version: 4.18.2
+  queue:
+    specifier: ^7.0.0
+    version: 7.0.0
   string-template:
     specifier: ^1.0.0
     version: 1.0.0
@@ -377,6 +380,10 @@ packages:
     engines: {node: '>=0.6'}
     dependencies:
       side-channel: 1.0.4
+    dev: false
+
+  /queue@7.0.0:
+    resolution: {integrity: sha512-sphwS7HdfQnvrJAXUNAUgpf9H/546IE3p/5Lf2jr71O4udEYlqAhkevykumas2FYuMkX/29JMOgrRdRoYZ/X9w==}
     dev: false
 
   /range-parser@1.2.1:

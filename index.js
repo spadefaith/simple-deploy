@@ -4,25 +4,26 @@ const express = require('express');
 const app = express();
 
 const deploy = require('./controller/deploy');
+const queue = require('./services/QueService');
 
 app.use(express.json());
 
 
 app.post('/simple-deploy',async function(req,res,next){
-
+    const q = await queue();
     // deploy({
     //     repo_url: '--branch staging git@github.com:spadefaith/gcash-service-fe.git ',
     //     repo_name: 'gcash-staging'
     // })
 
-    const deployed = await deploy({
-        repo_url: req.query.repo_url,
-        repo_name: req.query.repo_name
-    });
+    queue.push(async ()=>{
+        return deploy({
+            repo_url: req.query.repo_url,
+            repo_name: req.query.repo_name
+        })
+    })
 
-    console.log(deployed);
-
-    return res.json({status:1,data:deployed});
+    return res.json({status:1});
 });
 
 
