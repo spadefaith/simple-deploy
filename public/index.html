@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Deploy</title>
+
+    <style>
+      .controls > div {
+        margin-bottom: 20px;
+      }
+
+      .controls input {
+        width: 400px;
+        font-size: 15px;
+        padding: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <form id="project_info" action="/form-submit" method="POST">
+      <h4>Project Info</h4>
+
+      <div class="controls">
+        <div>
+          <input placeholder="repo name" id="repo_name" name="repo_name" />
+        </div>
+        <div>
+          <input placeholder="repo url" id="repo_url" name="repo_url" />
+        </div>
+        <div>
+          <input
+            placeholder="repo branch"
+            id="repo_branch"
+            name="repo_branch"
+          />
+        </div>
+        <div><input placeholder="type" id="type" name="type" /></div>
+        <div>
+          <input
+            placeholder="template name"
+            id="template_name"
+            name="template_name"
+          />
+        </div>
+        <div>
+          <input placeholder="index location" id="loc" name="loc" />
+        </div>
+
+        <div>
+          <textarea placeholder="environment" id="env" name="env"></textarea>
+        </div>
+        <div>
+          <textarea
+            placeholder="deploy template"
+            id="deploy_template"
+            name="deploy_template"
+          ></textarea>
+        </div>
+
+        <button type="submit">Submit</button>
+      </div>
+    </form>
+  </body>
+</html>

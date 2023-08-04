@@ -2,7 +2,7 @@ require("dotenv").config();
 const PORT = process.env.PORT;
 const express = require("express");
 const app = express();
-
+const path = require("path");
 const nodeDeploy = require("./controller/node");
 const staticDeploy = require("./controller/static");
 const queue = require("./services/QueService.js");
@@ -11,6 +11,7 @@ const Template = require("./controller/template");
 const Env = require("./controller/env");
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.post("/simple-deploy/:name", async function (req, res, next) {
   // deploy({
@@ -131,6 +132,70 @@ app.post("/env/:name", async function (req, res, next) {
     res.json({ status: 1, message: err.message });
   }
 });
+
+app.post("/form-submit", async function (req, res, next) {
+  let {
+    repo_name,
+    repo_url,
+    loc,
+    type,
+    env,
+    repo_branch,
+    template_name,
+    deploy_template,
+  } = req.body;
+
+  if (deploy_template) {
+    await Template.save(repo_name, deploy_template);
+  }
+
+  if (env) {
+    await Env.save({
+      repo_name: `${repo_name}-${repo_branch}`,
+      content: env,
+    });
+  }
+
+  repo_url = `--branch ${repo_branch} ${repo_url}`;
+
+  if (type == "static") {
+    if (!(repo_url && repo_name && template_name)) {
+      return next(
+        new Error(
+          `repo_url-${repo_url} && repo_name-${repo_name} && template_name-${template_name} is missing`
+        )
+      );
+    }
+    queue(async () => {
+      return staticDeploy({
+        repo_url: repo_url,
+        repo_name: repo_name,
+        template: template_name,
+      });
+    });
+  } else {
+    if (!(repo_url && repo_name && template_name && repo_branch)) {
+      return next(
+        new Error(
+          `repo_url-${repo_url} && repo_name-${repo_name} && template_name-${template_name} && repo_branch-${repo_branch} is missing`
+        )
+      );
+    }
+    queue(async () => {
+      return nodeDeploy({
+        repo_url: repo_url,
+        repo_name: repo_name,
+        template: template_name,
+        loc: loc,
+        repo_branch: repo_branch,
+      });
+    });
+  }
+
+  return res.json({ status: 1 });
+});
+
+app.use("/", express.static(path.join(__dirname, "/public")));
 
 app.listen(PORT, function (err) {
   if (err) {
