@@ -216,6 +216,17 @@ app.post("/form-submit", async function (req, res, next) {
   return res.json({ status: 1 });
 });
 
+app.post("/login-submit", async (req, res, next) => {
+  try {
+    const { username, password } = req.body;
+    if (!(username && password)) {
+      throw new Error("incomplete");
+    }
+  } catch (err) {
+    res.redirect("/login");
+  }
+});
+
 app.use("/login", express.static(path.join(__dirname, "/public/login.html")));
 
 app.use(
