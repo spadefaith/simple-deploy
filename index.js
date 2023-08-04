@@ -2,6 +2,7 @@ require("dotenv").config();
 const PORT = process.env.PORT;
 const express = require("express");
 const app = express();
+const cookieParser = require("cookie-parser");
 const path = require("path");
 const nodeDeploy = require("./controller/node");
 const staticDeploy = require("./controller/static");
@@ -12,6 +13,7 @@ const Env = require("./controller/env");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 app.post("/simple-deploy/:name", async function (req, res, next) {
   // deploy({
@@ -144,12 +146,21 @@ app.post("/form-submit", async function (req, res, next) {
     template_name,
     deploy_template,
   } = req.body;
-
   if (deploy_template) {
+    deploy_template = deploy_template.trim();
+    template_name = template_name.trim();
+
+    // console.log(152, JSON.stringify(deploy_template));
+
     await Template.save(template_name, deploy_template);
   }
 
+  // throw new Error("pause");
+
   if (env) {
+    repo_name = repo_name.trim();
+    repo_branch = repo_branch.trim();
+    env = env.trim();
     await Env.save({
       repo_name: `${repo_name}-${repo_branch}`,
       content: env,
@@ -166,6 +177,11 @@ app.post("/form-submit", async function (req, res, next) {
         )
       );
     }
+
+    repo_url = repo_url.trim();
+    repo_name = repo_name.trim();
+    template_name = template_name.trim();
+
     queue(async () => {
       return staticDeploy({
         repo_url: repo_url,
@@ -181,6 +197,11 @@ app.post("/form-submit", async function (req, res, next) {
         )
       );
     }
+    repo_url = repo_url.trim();
+    repo_name = repo_name.trim();
+    template_name = template_name.trim();
+    repo_branch = repo_branch.trim();
+
     queue(async () => {
       return nodeDeploy({
         repo_url: repo_url,
@@ -195,7 +216,20 @@ app.post("/form-submit", async function (req, res, next) {
   return res.json({ status: 1 });
 });
 
-app.use("/", express.static(path.join(__dirname, "/public")));
+app.use("/login", express.static(path.join(__dirname, "/public/login.html")));
+
+app.use(
+  "/",
+  (req, res, next) => {
+    const cookies = { ...req.cookies };
+    if (!cookies["x-token"]) {
+      res.redirect("/login");
+    } else {
+      next();
+    }
+  },
+  express.static(path.join(__dirname, "/public/index.html"))
+);
 
 app.listen(PORT, function (err) {
   if (err) {

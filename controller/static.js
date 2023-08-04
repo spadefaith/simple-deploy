@@ -10,7 +10,9 @@ async function deploy({ repo_url, repo_name, template }) {
     throw new Error(`template ${template} not found`);
   }
 
-  const str = format(t.template, {
+  // console.log(13, repo_url, repo_name, template);
+
+  let str = format(t, {
     repo_url,
     repo_name,
     dir: "simple-deploy-out-static",
@@ -19,6 +21,12 @@ async function deploy({ repo_url, repo_name, template }) {
   if (str.includes("{")) {
     throw new Error("not parsed");
   }
+
+  str = str.trim();
+
+  // console.log(1);
+  console.log(str);
+  console.log("---------------- end string -----------------");
 
   return new Promise((resolve, reject) => {
     const dir = spawn(`bash dir.sh`, [], {
@@ -43,11 +51,11 @@ async function deploy({ repo_url, repo_name, template }) {
         });
         child.stdout.on("data", async (data) => {
           data = data.toString();
-          console.log(data);
+          console.log(53, data);
         });
         child.stderr.on("data", async (data) => {
           data = data.toString();
-          console.log(data);
+          console.log(54, data);
         });
         child.on("close", async (code) => {
           // console.log(output);
