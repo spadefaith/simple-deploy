@@ -7,7 +7,8 @@ const nodeDeploy = require("./controller/node");
 const staticDeploy = require("./controller/static");
 const queue = require("./services/QueService.js");
 
-const { save, get } = require("./controller/template");
+const Template = require("./controller/template");
+const Env = require("./controller/env");
 
 app.use(express.json());
 
@@ -70,7 +71,7 @@ app.post("/template/:name", async function (req, res, next) {
     });
 
     if (template) {
-      await save(req.params.name, template);
+      await Template.save(req.params.name, template);
     }
 
     res.json({ status: 1 });
@@ -81,9 +82,51 @@ app.post("/template/:name", async function (req, res, next) {
 
 app.get("/template/:name", async function (req, res, next) {
   try {
-    const template = await get(req.params.name);
+    const template = await Template.get(req.params.name);
 
     res.json({ status: 1, data: template });
+  } catch (err) {
+    res.json({ status: 1, message: err.message });
+  }
+});
+
+app.post("/env/:name", async function (req, res, next) {
+  try {
+    const name = req.params.name;
+    if (!name) {
+      next(new Error("name is required"));
+    }
+    const env = await new Promise((res, rej) => {
+      const contentType = req.headers["content-type"] || "",
+        mime = contentType.split(";")[0];
+
+      if (mime != "text/plain") {
+        return rej(new Error("payload is wrong format"));
+      }
+
+      let data = "";
+      req.setEncoding("utf8");
+      req.on("data", function (chunk) {
+        data += chunk;
+      });
+      req.on("end", function () {
+        res(data);
+      });
+      req.on("error", function () {
+        rej(err);
+      });
+    }).catch((err) => {
+      throw err;
+    });
+
+    if (env) {
+      await Env.save({
+        repo_name: req.params.name,
+        content: env,
+      });
+    }
+
+    res.json({ status: 1 });
   } catch (err) {
     res.json({ status: 1, message: err.message });
   }
