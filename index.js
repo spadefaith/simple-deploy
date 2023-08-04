@@ -4,7 +4,7 @@ const express = require('express');
 const app = express();
 
 const deploy = require('./controller/deploy');
-const queue = require('./services/QueService.mjs');
+const queue = require('./services/QueService.js');
 
 app.use(express.json());
 
