@@ -146,7 +146,7 @@ app.post("/form-submit", async function (req, res, next) {
   } = req.body;
 
   if (deploy_template) {
-    await Template.save(repo_name, deploy_template);
+    await Template.save(template_name, deploy_template);
   }
 
   if (env) {
