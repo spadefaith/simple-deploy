@@ -243,7 +243,7 @@ app.post("/login-submit", async (req, res, next) => {
 
       setCache(username, token);
 
-      res.cookie("x-token", token, { secure: true, httpOnly: true });
+      res.cookie("x-token", token, { httpOnly: true });
 
       console.log("redirect to http://62.72.6.44:8990/");
       res.redirect("http://62.72.6.44:8990/");
