@@ -230,15 +230,6 @@ app.post("/login-submit", async (req, res, next) => {
       throw new Error("incomplete");
     }
 
-    console.log(
-      username == process.env.USER_NAME && password == process.env.PASSWORD
-    );
-    console.log(
-      username,
-      process.env.USER_NAME,
-      password,
-      process.env.PASSWORD
-    );
     if (username == process.env.USER_NAME && password == process.env.PASSWORD) {
       const token = jwt.sign(
         {
@@ -270,7 +261,7 @@ app.use(
   (req, res, next) => {
     try {
       const cookies = { ...req.cookies };
-      console.log(273, cookies);
+
       if (!cookies["x-token"]) {
         res.redirect("/login");
       } else {
