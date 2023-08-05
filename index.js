@@ -239,14 +239,10 @@ app.post("/login-submit", async (req, res, next) => {
         process.env.SECRET
       );
 
-      console.log(252, token);
-
       setCache(username, token);
 
       res.cookie("x-token", token, { httpOnly: true });
-
-      console.log("redirect to http://62.72.6.44:8990/");
-      res.redirect("http://62.72.6.44:8990/");
+      res.redirect("/");
     } else {
       console.log(err);
       throw new Error("not found");
@@ -268,12 +264,9 @@ app.use(
         res.redirect("/login");
       } else {
         const token = cookies["x-token"];
-        console.log(274, token);
 
         const verify = jwt.verify(token, process.env.SECRET);
         const username = verify.username;
-
-        console.log(275, getCache(username));
 
         if (!getCache(username)) {
           return res.redirect("/login");
