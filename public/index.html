@@ -224,7 +224,10 @@
         transports: ['websocket'],
       });
       socket.on("message", (args) => {
-        console.log(219,args);
+        iziToast.show({
+            title: '',
+            message: args
+        });
       });
 
     </script>
