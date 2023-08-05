@@ -3,6 +3,8 @@ const fs = require("fs");
 const { exec, spawn } = require("child_process");
 const path = require("path");
 const { get } = require("./template");
+
+const { getSocket } = require("../store");
 async function deploy({ repo_url, repo_name, template, loc, repo_branch }) {
   if (!repo_branch) {
     throw new Error("branch is required");
@@ -13,7 +15,16 @@ async function deploy({ repo_url, repo_name, template, loc, repo_branch }) {
     throw new Error(`template ${template} not found`);
   }
 
-  const str = format(t.template, {
+  console.log(18, t);
+  console.log(19, {
+    repo_url,
+    repo_name,
+    dir: "simple-deploy-out-node",
+    loc: loc || "",
+    repo_branch,
+  });
+
+  const str = format(t, {
     repo_url,
     repo_name,
     dir: "simple-deploy-out-node",
@@ -51,14 +62,21 @@ async function deploy({ repo_url, repo_name, template, loc, repo_branch }) {
         child.stdout.on("data", async (data) => {
           data = data.toString();
           console.log(data);
+          const socket = getSocket();
+          socket && socket.emit("message", data);
         });
         child.stderr.on("data", async (data) => {
           data = data.toString();
           console.log(data);
+          const socket = getSocket();
+          socket && socket.emit("message", data);
         });
         child.on("close", async (code) => {
           // console.log(output);
-          resolve(`child process exited with code ${code}`);
+          const t = `child process exited with code ${code}`;
+          const socket = getSocket();
+          socket && socket.emit("message", t);
+          resolve(t);
         });
       });
     });

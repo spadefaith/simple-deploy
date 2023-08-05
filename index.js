@@ -2,18 +2,25 @@ require("dotenv").config();
 const PORT = process.env.PORT;
 const express = require("express");
 const app = express();
+
+const http = require("http");
+const server = http.createServer(app);
+
 const cookieParser = require("cookie-parser");
 const path = require("path");
 const nodeDeploy = require("./controller/node");
 const staticDeploy = require("./controller/static");
 const queue = require("./services/QueService.js");
 
+const jwt = require("jsonwebtoken");
 const Template = require("./controller/template");
 const Env = require("./controller/env");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+const { setCache, getCache, setSocket, getSocket } = require("./store");
 
 app.post("/simple-deploy/:name", async function (req, res, next) {
   // deploy({
@@ -146,7 +153,7 @@ app.post("/form-submit", async function (req, res, next) {
     template_name,
     deploy_template,
   } = req.body;
-  if (deploy_template) {
+  if (template_name && deploy_template) {
     deploy_template = deploy_template.trim();
     template_name = template_name.trim();
 
@@ -222,6 +229,24 @@ app.post("/login-submit", async (req, res, next) => {
     if (!(username && password)) {
       throw new Error("incomplete");
     }
+
+    if (username == process.env.USER_NAME && password == process.env.PASSWORD) {
+      const token = jwt.sign(
+        {
+          exp: Math.floor(Date.now() / 1000) + 60 * 60,
+          username,
+        },
+        process.env.SECRET
+      );
+
+      setCache(username, token);
+
+      res.cookie("x-token", token, { secure: true, httpOnly: true });
+      res.redirect("/");
+    } else {
+      console.log(err);
+      throw new Error("not found");
+    }
   } catch (err) {
     res.redirect("/login");
   }
@@ -232,23 +257,38 @@ app.use("/login", express.static(path.join(__dirname, "/public/login.html")));
 app.use(
   "/",
   (req, res, next) => {
-    const cookies = { ...req.cookies };
-    if (!cookies["x-token"]) {
-      res.redirect("/login");
-    } else {
-      next();
+    try {
+      const cookies = { ...req.cookies };
+      if (!cookies["x-token"]) {
+        res.redirect("/login");
+      } else {
+        const token = cookies["x-token"];
+
+        const verify = jwt.verify(token, process.env.SECRET);
+        const username = verify.username;
+
+        if (!getCache(username)) {
+          return res.redirect("/login");
+        }
+
+        next();
+      }
+    } catch (err) {
+      next(err);
     }
   },
-  express.static(path.join(__dirname, "/public/index.html"))
+  express.static(path.join(__dirname, "/public"))
 );
 
-app.listen(PORT, function (err) {
+server.listen(PORT, function (err) {
   if (err) {
     console.error(err);
   } else {
     console.log("listening to port ", PORT);
   }
 });
+
+require("./socket")(server);
 
 app.use((error, req, res, next) => {
   console.log(88, error);

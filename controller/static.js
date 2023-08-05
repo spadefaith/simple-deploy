@@ -3,6 +3,7 @@ const fs = require("fs");
 const { exec, spawn } = require("child_process");
 const path = require("path");
 const { get } = require("./template");
+const { getSocket } = require("../store");
 async function deploy({ repo_url, repo_name, template }) {
   const t = await get(template);
 
@@ -52,14 +53,23 @@ async function deploy({ repo_url, repo_name, template }) {
         child.stdout.on("data", async (data) => {
           data = data.toString();
           console.log(53, data);
+
+          const socket = getSocket();
+          socket && socket.emit("message", data);
         });
         child.stderr.on("data", async (data) => {
           data = data.toString();
           console.log(54, data);
+
+          const socket = getSocket();
+          socket && socket.emit("message", data);
         });
         child.on("close", async (code) => {
           // console.log(output);
-          resolve(`child process exited with code ${code}`);
+          const t = `child process exited with code ${code}`;
+          const socket = getSocket();
+          socket && socket.emit("message", t);
+          resolve(t);
         });
       });
     });

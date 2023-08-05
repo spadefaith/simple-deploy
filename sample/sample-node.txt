@@ -1,0 +1,31 @@
+#mkdir
+mkdir ~/{dir}
+mkdir ~/{dir}/{repo_name}-{repo_branch}
+cd ~/{dir}/{repo_name}-{repo_branch}
+echo "done mkdir"
+
+#remove
+sudo rm -rf cd {repo_name}
+
+#clone the repository
+echo "git clone {repo_url}"
+git clone {repo_url}
+echo "done cloning"
+
+cp .env {repo_name}/.env
+cd {repo_name}
+
+#install and build
+echo "pnpm install"
+pnpm install
+echo "pnpm build"
+pnpm build
+
+echo "done build"
+
+
+
+#run pm2
+pm2 delete {repo_name}
+pm2 start {loc}index.js --name {repo_name}
+pm2 save

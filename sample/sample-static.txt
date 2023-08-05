@@ -1,0 +1,29 @@
+#mkdir
+mkdir ~/{dir}
+mkdir ~/{dir}/{repo_name}
+cd ~/{dir}/{repo_name}
+echo "done mkdir"
+#clone the repository
+echo "git clone {repo_url} ."
+git clone {repo_url} .
+echo "done cloning"
+#install and build
+echo "pnpm install"
+pnpm install
+echo "pnpm build"
+pnpm build
+echo "done build"
+
+echo "add to nginx"
+#add to nginx
+sudo rm -rf /var/www/{repo_name}
+echo "done output clear"
+sudo mkdir /var/www/{repo_name}
+echo "done output mkdir"
+sudo cp -r ~/{dir}/{repo_name}/dist/* /var/www/{repo_name}
+echo "done output copy"
+sudo chown -R www-data:www-data /var/www/{repo_name}
+echo "done output change user access"
+#remove the url
+sudo rm -rf cd ~/{dir}/{repo_name}
+echo "done src remove"
