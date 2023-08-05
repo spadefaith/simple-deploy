@@ -244,7 +244,7 @@ app.post("/login-submit", async (req, res, next) => {
       setCache(username, token);
 
       res.cookie("x-token", token, { secure: true, httpOnly: true });
-      res.redirect("/");
+      res.redirect("http://62.72.6.44:8990/");
     } else {
       console.log(err);
       throw new Error("not found");
