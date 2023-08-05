@@ -248,6 +248,8 @@ app.post("/login-submit", async (req, res, next) => {
         process.env.SECRET
       );
 
+      console.log(252, token);
+
       setCache(username, token);
 
       res.cookie("x-token", token, { secure: true, httpOnly: true });
@@ -268,13 +270,17 @@ app.use(
   (req, res, next) => {
     try {
       const cookies = { ...req.cookies };
+      console.log(273, cookies);
       if (!cookies["x-token"]) {
         res.redirect("/login");
       } else {
         const token = cookies["x-token"];
+        console.log(274, token);
 
         const verify = jwt.verify(token, process.env.SECRET);
         const username = verify.username;
+
+        console.log(275, getCache(username));
 
         if (!getCache(username)) {
           return res.redirect("/login");
