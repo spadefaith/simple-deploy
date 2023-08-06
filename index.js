@@ -34,6 +34,7 @@ app.post("/simple-deploy/:name", async function (req, res, next) {
         repo_url: req.query.repo_url,
         repo_name: req.query.repo_name,
         template: req.params.name,
+        repo_branch: req.query.repo_branch,
       });
     });
   } else {

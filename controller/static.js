@@ -4,7 +4,7 @@ const { exec, spawn } = require("child_process");
 const path = require("path");
 const { get } = require("./template");
 const { getSocket } = require("../store");
-async function deploy({ repo_url, repo_name, template }) {
+async function deploy({ repo_url, repo_name, template, repo_branch }) {
   const t = await get(template);
 
   if (!t) {
@@ -16,6 +16,7 @@ async function deploy({ repo_url, repo_name, template }) {
   let str = format(t, {
     repo_url,
     repo_name,
+    repo_branch,
     dir: "simple-deploy-out-static",
   });
 
