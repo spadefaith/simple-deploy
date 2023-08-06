@@ -11,7 +11,7 @@ async function deploy({ repo_url, repo_name, template, repo_branch }) {
     throw new Error(`template ${template} not found`);
   }
 
-  // console.log(13, repo_url, repo_name, template);
+  // console.log(13, repo_url, repo_name, template, repo_branch);
 
   let str = format(t, {
     repo_url,

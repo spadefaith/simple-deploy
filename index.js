@@ -189,12 +189,14 @@ app.post("/form-submit", async function (req, res, next) {
     repo_url = repo_url.trim();
     repo_name = repo_name.trim();
     template_name = template_name.trim();
+    repo_branch = repo_branch.trim();
 
     queue(async () => {
       return staticDeploy({
         repo_url: repo_url,
         repo_name: repo_name,
         template: template_name,
+        repo_branch,
       });
     });
   } else {
