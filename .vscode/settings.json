@@ -21,5 +21,13 @@
   },
   "typescript.tsdk": "node_modules/typescript/lib",
 
-  "workbench.colorTheme": "Default Dark Modern"
+  "workbench.colorTheme": "Default Dark Modern",
+
+  "html.format.templating": true,
+  "files.associations": {
+    "*.ejs": "html"
+  },
+  "emmet.includeLanguages": {
+    "ejs": "html"
+  }
 }

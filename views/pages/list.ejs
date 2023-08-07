@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>List</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+    />
+  </head>
+  <body>
+    <h1>List</h1>
+
+    <div class="container-xl">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>REPO NAME</th>
+            <th>REPO URL</th>
+            <th>REPO BRANCH</th>
+            <th>TEMPLATE</th>
+            <th>LOC</th>
+            <th>TYPE</th>
+            <th>ACTIONS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for(var i=0; i < rows.length; i++) { %>
+          <tr>
+            <td><%= rows[i]._id %></td>
+            <td><%= rows[i].repo_name %></td>
+            <td><%= rows[i].repo_url %></td>
+            <td><%= rows[i].loc %></td>
+            <td><%= rows[i].type %></td>
+            <td><%= rows[i].repo_branch %></td>
+            <td><%= rows[i].template_name %></td>
+            <td>
+              <div>
+                <button
+                  class="btn btn-success deploy"
+                  data-repo_name="<%= rows[i].repo_name %>"
+                  data-repo_branch="<%= rows[i].repo_branch %>"
+                >
+                  deploy
+                </button>
+              </div>
+            </td>
+          </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      document.querySelectorAll(".deploy").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          const target = e.target;
+          const repo_name = target.dataset.repo_name;
+          const repo_branch = target.dataset.repo_branch;
+
+          fetch(
+            `/manual-deploy?repo_name=${repo_name}&repo_branch=${repo_branch}`,
+            {
+              method: "POST",
+            }
+          )
+            .then((res) => res.json())
+            .then((res) => console.log(res))
+            .catch((err) => console.log(err.message));
+        });
+      });
+    </script>
+  </body>
+</html>

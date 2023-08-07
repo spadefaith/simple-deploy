@@ -5,7 +5,15 @@ const path = require("path");
 const { get } = require("./template");
 const { getSocket } = require("../store");
 async function deploy({ repo_url, repo_name, template, repo_branch }) {
-  const t = await get(template);
+  const templatePath = path.join(
+    __dirname,
+    `../config/templates/${template_name}.sh`
+  );
+
+  if (!fs.existsSync(templatePath)) {
+    throw new Error("template not found");
+  }
+  const t = fs.readFileSync(templatePath, { encoding: "utf8", flag: "r" });
 
   if (!t) {
     throw new Error(`template ${template} not found`);

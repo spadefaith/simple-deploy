@@ -4,12 +4,29 @@ const { exec, spawn } = require("child_process");
 const path = require("path");
 const { get } = require("./template");
 
+const loki = require("lokijs");
+const db = new loki("db.json").addCollection("applications");
+
 const { getSocket } = require("../store");
-async function deploy({ repo_url, repo_name, template, loc, repo_branch }) {
+async function deploy({
+  repo_url,
+  repo_name,
+  template_name,
+  loc,
+  repo_branch,
+}) {
   if (!repo_branch) {
     throw new Error("branch is required");
   }
-  const t = await get(template);
+  const templatePath = path.join(
+    __dirname,
+    `../config/templates/${template_name}.sh`
+  );
+
+  if (!fs.existsSync(templatePath)) {
+    throw new Error("template not found");
+  }
+  const t = fs.readFileSync(templatePath, { encoding: "utf8", flag: "r" });
 
   if (!t) {
     throw new Error(`template ${template} not found`);

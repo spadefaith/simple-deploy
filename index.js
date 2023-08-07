@@ -20,211 +20,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+app.set("views", __dirname + "/views");
+app.set("view engine", "ejs");
+
+const db = require("./db");
+
+const VerifySessionMiddleware = require("./middleware//VerifySession");
+
 const { setCache, getCache, setSocket, getSocket } = require("./store");
-
-app.post("/simple-deploy/:name", async function (req, res, next) {
-  // deploy({
-  //     repo_url: '--branch staging git@github.com:spadefaith/gcash-service-fe.git ',
-  //     repo_name: 'gcash-staging'
-  // })
-
-  if (req.query.type == "static") {
-    queue(async () => {
-      return staticDeploy({
-        repo_url: req.query.repo_url,
-        repo_name: req.query.repo_name,
-        template: req.params.name,
-        repo_branch: req.query.repo_branch,
-      });
-    });
-  } else {
-    queue(async () => {
-      return nodeDeploy({
-        repo_url: req.query.repo_url,
-        repo_name: req.query.repo_name,
-        template: req.params.name,
-        loc: req.query.loc,
-        repo_branch: req.query.repo_branch,
-      });
-    });
-  }
-
-  return res.json({ status: 1 });
-});
-
-app.post("/template/:name", async function (req, res, next) {
-  try {
-    const name = req.params.name;
-    if (!name) {
-      next(new Error("name is required"));
-    }
-    const template = await new Promise((res, rej) => {
-      const contentType = req.headers["content-type"] || "",
-        mime = contentType.split(";")[0];
-
-      if (mime != "text/plain") {
-        return rej(new Error("payload is wrong format"));
-      }
-
-      let data = "";
-      req.setEncoding("utf8");
-      req.on("data", function (chunk) {
-        data += chunk;
-      });
-      req.on("end", function () {
-        res(data);
-      });
-      req.on("error", function () {
-        rej(err);
-      });
-    }).catch((err) => {
-      throw err;
-    });
-
-    if (template) {
-      await Template.save(req.params.name, template);
-    }
-
-    res.json({ status: 1 });
-  } catch (err) {
-    res.json({ status: 1, message: err.message });
-  }
-});
-
-app.get("/template/:name", async function (req, res, next) {
-  try {
-    const template = await Template.get(req.params.name);
-
-    res.json({ status: 1, data: template });
-  } catch (err) {
-    res.json({ status: 1, message: err.message });
-  }
-});
-
-app.post("/env/:name", async function (req, res, next) {
-  try {
-    const name = req.params.name;
-    if (!name) {
-      next(new Error("name is required"));
-    }
-    const env = await new Promise((res, rej) => {
-      const contentType = req.headers["content-type"] || "",
-        mime = contentType.split(";")[0];
-
-      if (mime != "text/plain") {
-        return rej(new Error("payload is wrong format"));
-      }
-
-      let data = "";
-      req.setEncoding("utf8");
-      req.on("data", function (chunk) {
-        data += chunk;
-      });
-      req.on("end", function () {
-        res(data);
-      });
-      req.on("error", function () {
-        rej(err);
-      });
-    }).catch((err) => {
-      throw err;
-    });
-
-    if (env) {
-      await Env.save({
-        repo_name: req.params.name,
-        content: env,
-      });
-    }
-
-    res.json({ status: 1 });
-  } catch (err) {
-    res.json({ status: 1, message: err.message });
-  }
-});
-
-app.post("/form-submit", async function (req, res, next) {
-  let {
-    repo_name,
-    repo_url,
-    loc,
-    type,
-    env,
-    repo_branch,
-    template_name,
-    deploy_template,
-  } = req.body;
-  if (template_name && deploy_template) {
-    deploy_template = deploy_template.trim();
-    template_name = template_name.trim();
-
-    // console.log(152, JSON.stringify(deploy_template));
-
-    await Template.save(template_name, deploy_template);
-  }
-
-  // throw new Error("pause");
-
-  if (env) {
-    repo_name = repo_name.trim();
-    repo_branch = repo_branch.trim();
-    env = env.trim();
-    await Env.save({
-      repo_name: `${repo_name}-${repo_branch}`,
-      content: env,
-    });
-  }
-
-  repo_url = `--branch ${repo_branch} ${repo_url}`;
-
-  if (type == "static") {
-    if (!(repo_url && repo_name && template_name)) {
-      return next(
-        new Error(
-          `repo_url-${repo_url} && repo_name-${repo_name} && template_name-${template_name} is missing`
-        )
-      );
-    }
-
-    repo_url = repo_url.trim();
-    repo_name = repo_name.trim();
-    template_name = template_name.trim();
-    repo_branch = repo_branch.trim();
-
-    queue(async () => {
-      return staticDeploy({
-        repo_url: repo_url,
-        repo_name: repo_name,
-        template: template_name,
-        repo_branch,
-      });
-    });
-  } else {
-    if (!(repo_url && repo_name && template_name && repo_branch)) {
-      return next(
-        new Error(
-          `repo_url-${repo_url} && repo_name-${repo_name} && template_name-${template_name} && repo_branch-${repo_branch} is missing`
-        )
-      );
-    }
-    repo_url = repo_url.trim();
-    repo_name = repo_name.trim();
-    template_name = template_name.trim();
-    repo_branch = repo_branch.trim();
-
-    queue(async () => {
-      return nodeDeploy({
-        repo_url: repo_url,
-        repo_name: repo_name,
-        template: template_name,
-        loc: loc,
-        repo_branch: repo_branch,
-      });
-    });
-  }
-
-  return res.json({ status: 1 });
-});
+const fs = require("fs");
 
 app.post("/login-submit", async (req, res, next) => {
   try {
@@ -243,6 +47,7 @@ app.post("/login-submit", async (req, res, next) => {
       );
 
       setCache(username, token);
+      console.log(50, token);
 
       res.cookie("x-token", token, { httpOnly: true });
       res.redirect("/");
@@ -257,32 +62,178 @@ app.post("/login-submit", async (req, res, next) => {
 
 app.use("/login", express.static(path.join(__dirname, "/public/login.html")));
 
-app.use(
-  "/",
-  (req, res, next) => {
-    try {
-      const cookies = { ...req.cookies };
+app.post(
+  "/form-submit",
+  VerifySessionMiddleware,
+  async function (req, res, next) {
+    let {
+      repo_name,
+      repo_url,
+      loc,
+      type,
+      repo_branch,
+      env,
+      template_name,
+      deploy_template,
+    } = req.body;
 
-      if (!cookies["x-token"]) {
-        res.redirect("/login");
-      } else {
-        const token = cookies["x-token"];
-
-        const verify = jwt.verify(token, process.env.SECRET);
-        const username = verify.username;
-
-        if (!getCache(username)) {
-          return res.redirect("/login");
-        }
-
-        next();
-      }
-    } catch (err) {
-      next(err);
+    if (
+      type == "node" &&
+      !(repo_url && repo_name && template_name && repo_branch)
+    ) {
+      return next(
+        new Error(
+          `repo_url-${repo_url} && repo_name-${repo_name} && template_name-${template_name} && repo_branch-${repo_branch} is missing`
+        )
+      );
     }
-  },
+
+    if (type == "static" && !(repo_url && repo_name && template_name)) {
+      return next(
+        new Error(
+          `repo_url-${repo_url} && repo_name-${repo_name} && template_name-${template_name} is missing`
+        )
+      );
+    }
+
+    if (!fs.existsSync("config")) {
+      fs.mkdirSync("config");
+    }
+    if (!fs.existsSync(`config/${repo_name}-${repo_branch}`)) {
+      fs.mkdirSync(`config/${repo_name}-${repo_branch}`);
+    }
+
+    if (!fs.existsSync(`config/templates`)) {
+      fs.mkdirSync(`config/templates`);
+    }
+
+    if (template_name && deploy_template) {
+      fs.writeFileSync(
+        `config/templates/${template_name}.sh`,
+        deploy_template.replace(/[\r\n]/gm, "\n")
+      );
+    }
+    if (env) {
+      fs.writeFileSync(`config/${repo_name}-${repo_branch}/.env`, env);
+    }
+
+    await db.save({
+      repo_name: repo_name.trim(),
+      repo_url: `--branch ${repo_branch.trim()} ${repo_url.trim()}`,
+      loc: loc.trim(),
+      type: type.trim(),
+      repo_branch: repo_branch.trim(),
+      template_name,
+    });
+
+    if (type == "static") {
+      queue(async () => {
+        return staticDeploy({
+          repo_url,
+          repo_name,
+          template_name,
+          repo_branch,
+        });
+      });
+    } else {
+      queue(async () => {
+        return nodeDeploy({
+          repo_url,
+          repo_name,
+          template_name,
+          loc,
+          repo_branch,
+        });
+      });
+    }
+
+    return res.json({ status: 1 });
+  }
+);
+
+app.post("/deploy", async function (req, res, next) {
+  let { repo_name, repo_branch } = req.query;
+
+  const find = await db.get(`${repo_name}-${repo_branch}`);
+
+  if (!find) {
+    return next(new Error(`${repo_name} ${repo_branch} is not found`));
+  }
+
+  const { repo_url, loc, type, template_name } = find;
+
+  if (type == "static") {
+    queue(async () => {
+      return staticDeploy({
+        repo_url,
+        repo_name,
+        template_name,
+        repo_branch,
+      });
+    });
+  } else {
+    queue(async () => {
+      return nodeDeploy({
+        repo_url,
+        repo_name,
+        template_name,
+        loc,
+        repo_branch,
+      });
+    });
+  }
+});
+
+app.post(
+  "/manual-deploy",
+  VerifySessionMiddleware,
+  async function (req, res, next) {
+    let { repo_name, repo_branch } = req.query;
+
+    const find = await db.get(`${repo_name}-${repo_branch}`);
+
+    if (!find) {
+      return next(new Error(`${repo_name} ${repo_branch} is not found`));
+    }
+
+    const { repo_url, loc, type, template_name } = find;
+
+    if (type == "static") {
+      queue(async () => {
+        return staticDeploy({
+          repo_url,
+          repo_name,
+          template_name,
+          repo_branch,
+        });
+      });
+    } else {
+      queue(async () => {
+        return nodeDeploy({
+          repo_url,
+          repo_name,
+          template_name,
+          loc,
+          repo_branch,
+        });
+      });
+    }
+  }
+);
+
+app.use(
+  "/create",
+  VerifySessionMiddleware,
   express.static(path.join(__dirname, "/public"))
 );
+
+app.use("/", VerifySessionMiddleware, async (req, res) => {
+  const findAll = await db.instance.allDocs({ include_docs: true });
+
+  const rows = findAll.rows.map((item) => item.doc);
+
+  res.render("pages/list", { rows });
+});
 
 server.listen(PORT, function (err) {
   if (err) {
