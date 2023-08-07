@@ -1,7 +1,7 @@
 #mkdir
 mkdir ~/{dir}
-mkdir ~/{dir}/{repo_name}
-cd ~/{dir}/{repo_name}
+mkdir ~/{dir}/{repo_name}-{repo_branch}
+cd ~/{dir}/{repo_name}-{repo_branch}
 echo "done mkdir"
 #clone the repository
 echo "git clone {repo_url} ."
@@ -16,14 +16,14 @@ echo "done build"
 
 echo "add to nginx"
 #add to nginx
-sudo rm -rf /var/www/{repo_name}
+sudo rm -rf /var/www/{repo_name}-{repo_branch}
 echo "done output clear"
-sudo mkdir /var/www/{repo_name}
+sudo mkdir /var/www/{repo_name}-{repo_branch}
 echo "done output mkdir"
-sudo cp -r ~/{dir}/{repo_name}/dist/* /var/www/{repo_name}
+sudo cp -r ~/{dir}/{repo_name}-{repo_branch}/dist/* /var/www/{repo_name}-{repo_branch}
 echo "done output copy"
-sudo chown -R www-data:www-data /var/www/{repo_name}
+sudo chown -R www-data:www-data /var/www/{repo_name}-{repo_branch}
 echo "done output change user access"
 #remove the url
-sudo rm -rf cd ~/{dir}/{repo_name}
+sudo rm -rf cd ~/{dir}/{repo_name}-{repo_branch}
 echo "done src remove"
