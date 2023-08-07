@@ -32,15 +32,6 @@ async function deploy({
     throw new Error(`template ${template} not found`);
   }
 
-  console.log(18, t);
-  console.log(19, {
-    repo_url,
-    repo_name,
-    dir: "simple-deploy-out-node",
-    loc: loc || "",
-    repo_branch,
-  });
-
   const str = format(t, {
     repo_url,
     repo_name,

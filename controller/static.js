@@ -4,7 +4,7 @@ const { exec, spawn } = require("child_process");
 const path = require("path");
 const { get } = require("./template");
 const { getSocket } = require("../store");
-async function deploy({ repo_url, repo_name, template, repo_branch }) {
+async function deploy({ repo_url, repo_name, template_name, repo_branch }) {
   const templatePath = path.join(
     __dirname,
     `../config/templates/${template_name}.sh`
