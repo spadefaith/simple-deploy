@@ -14,7 +14,7 @@ module.exports = function (server) {
     },
     allowRequest: (req, callback) => {
       const origin = req.headers.origin || "";
-
+      console.log(17, origin);
       const isAllowed = [
         "localhost:8990",
         "62.72.6.44:8990",
