@@ -4,8 +4,8 @@ mkdir ~/{dir}/{repo_name}-{repo_branch}
 cd ~/{dir}/{repo_name}-{repo_branch}
 echo "done mkdir"
 #clone the repository
-echo "git clone {repo_url} ."
-git clone {repo_url} .
+echo "git clone --branch={repo_branch} {repo_url} ."
+git clone --branch={repo_branch} {repo_url} .
 echo "done cloning"
 #install and build
 echo "pnpm install"

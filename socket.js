@@ -15,7 +15,11 @@ module.exports = function (server) {
     allowRequest: (req, callback) => {
       const origin = req.headers.origin || "";
 
-      const isAllowed = ["localhost:8990", "62.72.6.44:8990"].some((item) => {
+      const isAllowed = [
+        "localhost:8990",
+        "62.72.6.44:8990",
+        "86.38.203.6:8990",
+      ].some((item) => {
         return origin.includes(item) || origin == item;
       });
 

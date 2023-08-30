@@ -182,6 +182,7 @@ app.post("/deploy", async function (req, res, next) {
       });
     });
   }
+  res.json({ status: 1 });
 });
 
 app.post(
@@ -218,6 +219,7 @@ app.post(
         });
       });
     }
+    res.json({ status: 1 });
   }
 );
 

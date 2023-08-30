@@ -8,8 +8,8 @@ echo "done mkdir"
 sudo rm -rf {repo_name}
 
 #clone the repository
-echo "git clone {repo_url}"
-git clone {repo_url}
+echo "git clone --branch={repo_branch} {repo_url}"
+git clone --branch={repo_branch} {repo_url}
 echo "done cloning"
 
 
