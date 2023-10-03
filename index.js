@@ -116,8 +116,6 @@ app.post(
       }
 
       if (env) {
-        console.log(119, `config/${repo_name}-${repo_branch}/.env`);
-        fs.writeFileSync(`config/${repo_name}-${repo_branch}/env`, env);
         fs.writeFileSync(`config/${repo_name}-${repo_branch}/.env`, env);
       }
 

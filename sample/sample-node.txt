@@ -12,7 +12,7 @@ echo "git clone --branch={repo_branch} {repo_url}"
 git clone --branch={repo_branch} {repo_url}
 echo "done cloning"
 
-
+echo "cp ~/simple-deploy/config/{repo_name}-{repo_branch}/.env {repo_name}/.env"
 cp ~/simple-deploy/config/{repo_name}-{repo_branch}/.env {repo_name}/.env
 cd {repo_name}
 
@@ -27,6 +27,9 @@ echo "done build"
 
 
 #run pm2
+echo "pm2 delete {repo_name}-{repo_branch}"
 pm2 delete {repo_name}-{repo_branch}
+echo "pm2 start {loc}index.js --name {repo_name}-{repo_branch}"
 pm2 start {loc}index.js --name {repo_name}-{repo_branch}
+echo "pm2 save"
 pm2 save
