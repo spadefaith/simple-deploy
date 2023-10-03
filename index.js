@@ -66,89 +66,94 @@ app.post(
   "/form-submit",
   VerifySessionMiddleware,
   async function (req, res, next) {
-    let {
-      repo_name,
-      repo_url,
-      loc,
-      type,
-      repo_branch,
-      env,
-      template_name,
-      deploy_template,
-    } = req.body;
+    try {
+      let {
+        repo_name,
+        repo_url,
+        loc,
+        type,
+        repo_branch,
+        env,
+        template_name,
+        deploy_template,
+      } = req.body;
 
-    if (
-      type == "node" &&
-      !(repo_url && repo_name && template_name && repo_branch)
-    ) {
-      return next(
-        new Error(
-          `repo_url-${repo_url} && repo_name-${repo_name} && template_name-${template_name} && repo_branch-${repo_branch} is missing`
-        )
-      );
-    }
+      if (
+        type == "node" &&
+        !(repo_url && repo_name && template_name && repo_branch)
+      ) {
+        return next(
+          new Error(
+            `repo_url-${repo_url} && repo_name-${repo_name} && template_name-${template_name} && repo_branch-${repo_branch} is missing`
+          )
+        );
+      }
 
-    if (type == "static" && !(repo_url && repo_name && template_name)) {
-      return next(
-        new Error(
-          `repo_url-${repo_url} && repo_name-${repo_name} && template_name-${template_name} is missing`
-        )
-      );
-    }
+      if (type == "static" && !(repo_url && repo_name && template_name)) {
+        return next(
+          new Error(
+            `repo_url-${repo_url} && repo_name-${repo_name} && template_name-${template_name} is missing`
+          )
+        );
+      }
 
-    if (!fs.existsSync("config")) {
-      fs.mkdirSync("config");
-    }
-    if (!fs.existsSync(`config/${repo_name}-${repo_branch}`)) {
-      fs.mkdirSync(`config/${repo_name}-${repo_branch}`);
-    }
+      if (!fs.existsSync("config")) {
+        fs.mkdirSync("config");
+      }
+      if (!fs.existsSync(`config/${repo_name}-${repo_branch}`)) {
+        fs.mkdirSync(`config/${repo_name}-${repo_branch}`);
+      }
 
-    if (!fs.existsSync(`config/templates`)) {
-      fs.mkdirSync(`config/templates`);
-    }
+      if (!fs.existsSync(`config/templates`)) {
+        fs.mkdirSync(`config/templates`);
+      }
 
-    if (template_name && deploy_template) {
-      fs.writeFileSync(
-        `config/templates/${template_name}.sh`,
-        deploy_template.replace(/[\r\n]/gm, "\n")
-      );
-    }
-    console.log(116, env);
-    if (env) {
-      fs.writeFileSync(`config/${repo_name}-${repo_branch}/.env`, env);
-    }
+      if (template_name && deploy_template) {
+        fs.writeFileSync(
+          `config/templates/${template_name}.sh`,
+          deploy_template.replace(/[\r\n]/gm, "\n")
+        );
+      }
 
-    await db.save({
-      repo_name: repo_name.trim(),
-      repo_url: `--branch ${repo_branch.trim()} ${repo_url.trim()}`,
-      loc: loc.trim(),
-      type: type.trim(),
-      repo_branch: repo_branch.trim(),
-      template_name,
-    });
+      if (env) {
+        fs.writeFileSync(`config/${repo_name}-${repo_branch}/.env`, env);
+      }
 
-    if (type == "static") {
-      queue(async () => {
-        return staticDeploy({
-          repo_url,
-          repo_name,
-          template_name,
-          repo_branch,
-        });
+      await db.save({
+        repo_name: repo_name.trim(),
+        repo_url: `--branch ${repo_branch.trim()} ${repo_url.trim()}`,
+        loc: loc.trim(),
+        type: type.trim(),
+        repo_branch: repo_branch.trim(),
+        template_name,
       });
-    } else {
-      queue(async () => {
-        return nodeDeploy({
-          repo_url,
-          repo_name,
-          template_name,
-          loc,
-          repo_branch,
-        });
-      });
-    }
 
-    return res.json({ status: 1 });
+      if (type == "static") {
+        queue(async () => {
+          return staticDeploy({
+            repo_url,
+            repo_name,
+            template_name,
+            repo_branch,
+          });
+        });
+      } else {
+        queue(async () => {
+          return nodeDeploy({
+            repo_url,
+            repo_name,
+            template_name,
+            loc,
+            repo_branch,
+          });
+        });
+      }
+
+      return res.json({ status: 1 });
+    } catch (err) {
+      console.log(154, err);
+      return res.json({ status: 0 });
+    }
   }
 );
 
