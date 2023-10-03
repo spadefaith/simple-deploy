@@ -113,6 +113,7 @@ app.post(
         deploy_template.replace(/[\r\n]/gm, "\n")
       );
     }
+    console.log(116, env);
     if (env) {
       fs.writeFileSync(`config/${repo_name}-${repo_branch}/.env`, env);
     }
