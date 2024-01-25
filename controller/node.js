@@ -30,6 +30,8 @@ async function deploy({
 
   const envObj = await ReadEnv(envPath);
 
+  console.log(33, envObj);
+
   if (!fs.existsSync(templatePath)) {
     throw new Error("template not found");
   }
