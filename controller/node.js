@@ -30,8 +30,6 @@ async function deploy({
 
   const envObj = await ReadEnv(envPath);
 
-  console.log(33, envObj);
-
   if (!fs.existsSync(templatePath)) {
     throw new Error("template not found");
   }
@@ -72,7 +70,7 @@ async function deploy({
         const child = spawn(`bash dist/deploy-${repo_name}.sh`, [], {
           shell: true,
           cwd: process.cwd(),
-          env: process.env,
+          env: envObj || {},
           stdio: ["inherit"],
           encoding: "utf-8",
         });
