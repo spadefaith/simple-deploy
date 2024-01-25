@@ -28,6 +28,7 @@
     "lokijs": "^1.5.12",
     "pouchdb-node": "^8.0.1",
     "queue-microtask": "^1.2.3",
+    "shelljs": "^0.8.5",
     "socket.io": "4.7.2",
     "string-template": "^1.0.0"
   }
