@@ -3,7 +3,7 @@ const fs = require("fs");
 const { exec, spawn } = require("child_process");
 const path = require("path");
 const { get } = require("./template");
-
+const ReadEnv = require("../services/ReadEnv");
 const loki = require("lokijs");
 const db = new loki("db.json").addCollection("applications");
 
@@ -22,6 +22,15 @@ async function deploy({
     __dirname,
     `../config/templates/${template_name}.sh`
   );
+
+  const envPath = path.join(
+    __dirname,
+    `../config/${repo_name}-${repo_branch}/.env`
+  );
+
+  const envObj = await ReadEnv(envPath);
+
+  console.log(33, envObj);
 
   if (!fs.existsSync(templatePath)) {
     throw new Error("template not found");
