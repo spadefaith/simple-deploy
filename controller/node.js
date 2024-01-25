@@ -72,7 +72,7 @@ async function deploy({
         const child = spawn(`bash dist/deploy-${repo_name}.sh`, [], {
           shell: true,
           cwd: process.cwd(),
-          env: envObj || {},
+          env: { ...process.env, ...(envObj || {}) },
           stdio: ["inherit"],
           encoding: "utf-8",
         });
