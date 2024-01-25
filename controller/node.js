@@ -6,6 +6,7 @@ const { get } = require("./template");
 const ReadEnv = require("../services/ReadEnv");
 const loki = require("lokijs");
 const db = new loki("db.json").addCollection("applications");
+const shell = require("shelljs");
 
 const { getSocket } = require("../store");
 async function deploy({
@@ -28,7 +29,13 @@ async function deploy({
     `../config/${repo_name}-${repo_branch}/.env`
   );
 
-  const envObj = await ReadEnv(envPath);
+  let envObj = await ReadEnv(envPath);
+
+  envObj = Object.keys(envObj).reduce((accu, key) => {
+    const value = envObj[key];
+    accu[String(key).toUpperCase()] = value;
+    return accu;
+  }, {});
 
   console.log(33, envObj);
 
@@ -69,6 +76,15 @@ async function deploy({
         if (err) {
           return reject(err);
         }
+
+        console.log(75, {
+          shell: true,
+          cwd: process.cwd(),
+          env: { ...process.env, ...(envObj || {}) },
+          stdio: ["inherit"],
+          encoding: "utf-8",
+        });
+
         const child = spawn(`bash dist/deploy-${repo_name}.sh`, [], {
           shell: true,
           cwd: process.cwd(),
